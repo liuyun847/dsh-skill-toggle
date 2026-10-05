@@ -1,0 +1,13 @@
+# 依赖与运行产物
+node_modules/
+
+# 日志与备份
+*.log
+*.bak*
+
+# 系统与 dsh 本地状态
+.DS_Store
+.dsh/
+
+# 本机验证记录（不随包发布）
+reports/

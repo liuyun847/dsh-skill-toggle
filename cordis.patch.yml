@@ -1,0 +1,43 @@
+# dsh-skill-toggle 的 profile 层 patch（包内自带）。
+#
+# 本包是"组合包"(bundle)：宿主按 profile 的 dsh.profile.bundles 加载本包时应用本文件。
+#
+# ── 三处装载入口，缺一不可（照 dsh-host-task-board 的实测结论）────────────────
+#   1. 本文件（包内 cordis.patch.yml）：提供下面这条 insert 行；
+#   2. 包 package.json 的 dsh.bundle.patch 指向 ./cordis.patch.yml，且 files 白名单要含它
+#      —— pnpm 的 file: 拷贝**只按 files 落文件**，漏了就是"包内没有 patch 文件"；
+#   3. profile package.json 的 dsh.profile.bundles 里要有包名 dsh-skill-toggle。
+#   少任何一处：要么整包不被选中(3)，要么整包被静默跳过(1、2)——loadProfileDirectory 把失败
+#   收进 skippedBundles，不报错、热重载路径连日志都没有。
+#
+# ── 运行副本 = node_modules 那份 ──────────────────────────────────────────
+#   宿主 resolveBundleDir 先解析到 profile 的 node_modules\dsh-skill-toggle，
+#   patch 路径再按**该目录**拼 ⇒ 真正被读的是运行副本里的本文件与 lib/index.js。
+#   本包在 profile 里是 **link:** 依赖 ⇒ node_modules\dsh-skill-toggle 是指向工作区本目录的
+#   **Junction**（实测两侧 fsutil file queryfileid 相同、fsutil hardlink list 只有一条路径），
+#   两侧本来就是同一个目录项，任何写法都同时落到两侧；file: 依赖才是硬链接/独立拷贝，
+#   那种形态下换文件式写入会打断链接、让运行副本留在旧内容。判据与处置见工作区
+#   dsh-plugin-manager\README.md 的「本地 `file:` 插件的落盘形态」一节。
+#
+# ── 启停与生效 ────────────────────────────────────────────────────────────
+#   启停：插件页「已安装」卡片的总开关（写 profile 的 dsh.profile.bundles），
+#   或卡片详情里的行级开关（向 profile 的 cordis.patch.yml 写 disabled 覆盖）。
+#   行 id `skill-toggle` 是上述开关与 settings 命名空间的寻址键，**勿改**。
+#   改**本文件**不会热生效（dsh-hmr 只盯 profile 的 cordis.patch.yml、$DSH_HOME\cordis.patch.yml
+#   与 profile package.json）；改 lib/*.js 一律要重启 dsh（模块按 URL 缓存）。
+#   插件**运行期**的名单改动（改状态文件 / 拨设置页的开关）不需要重启，见 README「生效时机」。
+#
+# ── 两半（v0.3.0）────────────────────────────────────────────────────────
+#   宿主半身 = lib/index.js（过滤机制 + 设置页用的 /api/skill-toggle/state 状态接口）；
+#   浏览器半身 = lib/client.js（「设置 → 技能开关」整页）。浏览器那半由包 package.json 的
+#   `dsh.client`（platform: web）与 `exports["./client"]` 声明，**不在本文件里**——
+#   本文件这一行只负责让加载器发现这个包。两处齐了仍需重启一次 dsh 才会被扫进客户端模块图。
+#
+# ── 回滚 ──────────────────────────────────────────────────────────────────
+#   删掉下面这条 insert（热卸载，注册表方法与 /api 状态路由一起还原）+ 把包名从 profile 的
+#   dsh.profile.bundles 移除
+#   （用工作区的 dsh-plugin-manager：node <工作区>\dsh\dsh-plugin-manager\dshpm.mjs remove dsh-skill-toggle --profile web）。
+#   卸载时本插件会把技能注册表上的包装方法还原，不需要动任何技能文件。
+- insert:
+    - id: skill-toggle
+      name: 'dsh-skill-toggle'

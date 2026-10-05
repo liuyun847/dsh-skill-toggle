@@ -1,0 +1,48 @@
+{
+  "name": "dsh-skill-toggle",
+  "version": "0.3.0",
+  "private": true,
+  "description": "DSH 插件：按禁用名单把指定技能从模型可见目录里摘掉（在技能注册表实例上包一层 snapshot/list/get 过滤读取结果；不改任何技能文件，改名单后下一次读取即生效），并在「设置 → 技能开关」里给每个技能一个开关",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cli.mjs": "./cli.mjs",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-settings-general"
+      ]
+    }
+  },
+  "files": [
+    "lib",
+    "cli.mjs",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liuyun847/dsh-skill-toggle.git"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "skill",
+    "skill-toggle",
+    "settings-ui"
+  ]
+}
