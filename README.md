@@ -183,7 +183,7 @@ if (!snapshot.complete) return decision      // ← 这一步既不下发、也�
 装了等于没装）：
 
 ```powershell
-node <工作区>\dsh\dsh-plugin-manager\dshpm.mjs add link:<工作区>\dsh\dsh-skill-toggle --profile web
+node <工作区>\dsh\dsh-plugin-manager\dshpm.mjs add link:<工作区>\dsh\dsh-skill-toggle --profile desktop
 ```
 
 `link:` 是工作区源码直连 profile（本机既有的 `dsh-client-ui-session-rail` 就是这个形态）；用 `file:` 也可，
